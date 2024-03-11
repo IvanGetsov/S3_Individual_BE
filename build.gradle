@@ -1,0 +1,88 @@
+plugins {
+	id 'java'
+	id 'jacoco'
+	id 'org.springframework.boot' version '3.1.3'
+	id 'io.spring.dependency-management' version '1.1.3'
+	id 'org.sonarqube' version "4.4.1.3373"
+}
+sonar {
+	properties {
+		property "sonar.projectKey", "S3_Individual"
+		property "sonar.host.url", "http://localhost:9000"
+		property "sonar.token", System.getenv("SONARQUBE_TOKEN")
+		property "sonar.scm.disabled", true
+		property "sonar.coverage.exclusions", [
+		        "src/main/java/individual/individual_backend/domain/**/*",
+				"src/main/java/individual/individual_backend/controller/**/*",
+				"src/main/java/individual/individual_backend/persistence/**/*",
+				"src/main/java/individual/individual_backend/configuration/**/*",
+				"src/main/java/individual/individual_backend/IndividualBackendApplication.*"
+
+
+		]
+	}
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"individual/individual_backend/domain/**/*",
+					"individual/individual_backend/controller/**/*",
+					"individual/individual_backend/persistence/**/*",
+					"individual/individual_backend/configuration/**/*",
+					"individual/individual_backend/IndividualBackendApplication.class"
+			])
+		}))
+	}
+}
+
+group = 'individual'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'junit:junit:4.13.1'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	implementation 'org.flywaydb:flyway-core'
+	testRuntimeOnly 'com.h2database:h2'
+	implementation 'org.flywaydb:flyway-mysql'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.springframework.security:spring-security-core:6.1.5'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
